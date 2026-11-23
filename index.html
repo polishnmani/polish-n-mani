@@ -5,6 +5,28 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1B2128">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="POLISH N MANI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./logo.jpg">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    let oneSignalReady = false;
+    window.OneSignalDeferred.push(async function(OneSignal) {
+        try {
+            await OneSignal.init({ appId: "19af32ef-faa2-47fe-a740-3abb09527f3c" });
+            oneSignalReady = true;
+            const help = document.getElementById("pushHelp");
+            if (help) help.textContent = "Kliknij przycisk, aby włączyć powiadomienia na tym urządzeniu.";
+        } catch (error) {
+            console.error("OneSignal initialization error:", error);
+            const help = document.getElementById("pushHelp");
+            if (help) help.textContent = "Nie udało się uruchomić modułu powiadomień. Odśwież stronę i spróbuj ponownie.";
+        }
+    });
+</script>
 <title>Polish N Mani | Rezerwacje</title>
 
 <style>
@@ -355,6 +377,18 @@ footer {
         min-height: 56px;
     }
 }
+
+/* OneSignal – ręczne włączenie powiadomień */
+.push-area { text-align: center; padding: 0 15px 18px; }
+.push-button {
+    display: inline-block; min-height: 44px; padding: 12px 18px;
+    border: 1px solid #FF9C3B; border-radius: 9px; background: transparent;
+    color: #FF9C3B; font-weight: bold; font-size: 13px; cursor: pointer;
+}
+.push-button:hover { background: #FF9C3B; color: #1B2128; }
+.push-help { margin: 9px auto 0; max-width: 440px; color: #BBBBBB; font-size: 11px; line-height: 1.5; }
+.push-button:disabled { opacity: .6; cursor: wait; }
+
 </style>
 </head>
 
@@ -368,6 +402,10 @@ footer {
     >
     <div class="subtitle">ONLINE BOOKING</div>
 </header>
+<div class="push-area">
+    <button type="button" class="push-button" id="enablePushButton">WŁĄCZ POWIADOMIENIA</button>
+    <p class="push-help" id="pushHelp">Włącz powiadomienia, aby otrzymywać informacje o nowych rezerwacjach.</p>
+</div>
 
 <main class="container">
 <div class="panel">
@@ -461,6 +499,30 @@ footer {
 <footer>
     POLISH N MANI • BEAUTY BOOKING
 </footer>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const button = document.getElementById("enablePushButton");
+    const help = document.getElementById("pushHelp");
+    button.addEventListener("click", async function() {
+        if (!oneSignalReady || !window.OneSignal) {
+            help.textContent = "Moduł powiadomień jeszcze się ładuje. Poczekaj chwilę i spróbuj ponownie.";
+            return;
+        }
+        button.disabled = true;
+        try {
+            await window.OneSignal.Slidedown.promptPush();
+            help.textContent = "Jeśli pojawi się prośba przeglądarki, wybierz Zezwalaj.";
+        } catch (error) {
+            console.error("OneSignal prompt error:", error);
+            help.textContent = "Nie udało się wyświetlić prośby. Sprawdź ustawienia powiadomień przeglądarki.";
+        } finally {
+            button.disabled = false;
+        }
+    });
+});
+</script>
 
 <!-- Supabase JS client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
