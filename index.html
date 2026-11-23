@@ -20,7 +20,8 @@
             await OneSignal.init({
                 appId: "19af32ef-faa2-47fe-a740-3abb09527f3c",
                 serviceWorkerPath: "/polish-n-mani/OneSignalSDKWorker.js",
-                serviceWorkerParam: { scope: "/polish-n-mani/" }
+                serviceWorkerParam: { scope: "/polish-n-mani/" },
+                serviceWorkerOverrideForTypical: true
             });
             oneSignalReady = true;
 
