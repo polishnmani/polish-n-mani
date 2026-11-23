@@ -15,15 +15,32 @@
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     let oneSignalReady = false;
     window.OneSignalDeferred.push(async function(OneSignal) {
+        const help = document.getElementById("pushHelp");
         try {
-            await OneSignal.init({ appId: "19af32ef-faa2-47fe-a740-3abb09527f3c" });
+            await OneSignal.init({
+                appId: "19af32ef-faa2-47fe-a740-3abb09527f3c",
+                serviceWorkerPath: "/polish-n-mani/OneSignalSDKWorker.js",
+                serviceWorkerParam: { scope: "/polish-n-mani/" }
+            });
             oneSignalReady = true;
-            const help = document.getElementById("pushHelp");
-            if (help) help.textContent = "Kliknij przycisk, aby włączyć powiadomienia na tym urządzeniu.";
+
+            const subscription = OneSignal.User.PushSubscription;
+            if (help) {
+                help.textContent = subscription.optedIn
+                    ? "Powiadomienia są już włączone na tym urządzeniu."
+                    : "Kliknij przycisk, aby włączyć powiadomienia na tym urządzeniu.";
+            }
+
+            subscription.addEventListener("change", function(event) {
+                if (help) {
+                    help.textContent = event.current.optedIn
+                        ? "Powiadomienia są włączone na tym urządzeniu."
+                        : "Powiadomienia nie są jeszcze włączone.";
+                }
+            });
         } catch (error) {
             console.error("OneSignal initialization error:", error);
-            const help = document.getElementById("pushHelp");
-            if (help) help.textContent = "Nie udało się uruchomić modułu powiadomień. Odśwież stronę i spróbuj ponownie.";
+            if (help) help.textContent = "Błąd uruchamiania powiadomień: " + (error?.message || "sprawdź połączenie i odśwież stronę");
         }
     });
 </script>
@@ -505,21 +522,55 @@ footer {
 document.addEventListener("DOMContentLoaded", function() {
     const button = document.getElementById("enablePushButton");
     const help = document.getElementById("pushHelp");
-    button.addEventListener("click", async function() {
-        if (!oneSignalReady || !window.OneSignal) {
+
+    button.addEventListener("click", function() {
+        if (!oneSignalReady) {
             help.textContent = "Moduł powiadomień jeszcze się ładuje. Poczekaj chwilę i spróbuj ponownie.";
             return;
         }
+
         button.disabled = true;
-        try {
-            await window.OneSignal.Slidedown.promptPush();
-            help.textContent = "Jeśli pojawi się prośba przeglądarki, wybierz Zezwalaj.";
-        } catch (error) {
-            console.error("OneSignal prompt error:", error);
-            help.textContent = "Nie udało się wyświetlić prośby. Sprawdź ustawienia powiadomień przeglądarki.";
-        } finally {
-            button.disabled = false;
-        }
+        help.textContent = "Otwieranie ustawień powiadomień...";
+
+        window.OneSignalDeferred.push(async function(OneSignal) {
+            try {
+                if (!OneSignal.Notifications.isPushSupported()) {
+                    help.textContent = "Ta przeglądarka lub tryb strony nie obsługuje powiadomień push.";
+                    return;
+                }
+
+                const subscription = OneSignal.User.PushSubscription;
+
+                if (subscription.optedIn) {
+                    help.textContent = "Powiadomienia są już włączone na tym urządzeniu.";
+                    return;
+                }
+
+                if (Notification.permission === "denied") {
+                    help.textContent = "Powiadomienia są zablokowane w ustawieniach urządzenia. Zmień uprawnienie dla POLISH N MANI na Zezwalaj.";
+                    return;
+                }
+
+                await OneSignal.Slidedown.promptPush();
+                await new Promise(resolve => setTimeout(resolve, 1200));
+
+                if (subscription.optedIn) {
+                    help.textContent = "Sukces! Powiadomienia są włączone na tym urządzeniu.";
+                } else if (Notification.permission === "granted") {
+                    await subscription.optIn();
+                    help.textContent = subscription.optedIn
+                        ? "Sukces! Powiadomienia są włączone na tym urządzeniu."
+                        : "Zgoda przeglądarki została udzielona, ale OneSignal nie potwierdził jeszcze subskrypcji. Odśwież stronę i sprawdź ponownie.";
+                } else {
+                    help.textContent = "Nie zakończono włączania powiadomień. Spróbuj ponownie i zaakceptuj prośbę.";
+                }
+            } catch (error) {
+                console.error("OneSignal prompt/opt-in error:", error);
+                help.textContent = "Nie udało się włączyć powiadomień: " + (error?.message || "sprawdź ustawienia urządzenia");
+            } finally {
+                button.disabled = false;
+            }
+        });
     });
 });
 </script>
