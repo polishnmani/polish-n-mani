@@ -1,0 +1,19 @@
+{
+  "id": "/polish-n-mani/",
+  "name": "POLISH N MANI",
+  "short_name": "POLISH N MANI",
+  "description": "Rezerwacje wizyt POLISH N MANI",
+  "start_url": "/polish-n-mani/",
+  "scope": "/polish-n-mani/",
+  "display": "standalone",
+  "background_color": "#1B2128",
+  "theme_color": "#1B2128",
+  "icons": [
+    {
+      "src": "/polish-n-mani/logo.jpg",
+      "sizes": "any",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
