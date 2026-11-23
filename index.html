@@ -1,0 +1,799 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1B2128">
+<title>Polish N Mani | Rezerwacje</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-width: 320px;
+    background: #1B2128;
+    color: #FFFFFF;
+    font-family: Arial, sans-serif;
+}
+
+header {
+    text-align: center;
+    padding: 28px 15px;
+}
+
+/* OKRĄGŁE LOGO */
+.logo-image {
+    display: block;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    margin: 0 auto 8px;
+}
+
+.subtitle {
+    color: #FF9C3B;
+    letter-spacing: 4px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-top: 9px;
+}
+
+.container {
+    width: 100%;
+    max-width: 850px;
+    margin: auto;
+    padding: 15px;
+}
+
+.panel {
+    background: #FFFFFF;
+    color: #1B2128;
+    border-radius: 18px;
+    padding: 25px;
+    box-shadow: 0 10px 35px rgba(0,0,0,.15);
+}
+
+.month {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 10px;
+}
+
+.month h2 {
+    font-size: 21px;
+    text-align: center;
+    margin: 0;
+    color: #1B2128;
+}
+
+.month button {
+    background: #FF9C3B;
+    color: #1B2128;
+    border: none;
+    border-radius: 8px;
+    width: 42px;
+    height: 42px;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.month button:hover,
+.submit:hover {
+    background: #E98929;
+}
+
+.submit:disabled {
+    opacity: .65;
+    cursor: wait;
+}
+
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.weekday {
+    text-align: center;
+    color: #555555;
+    font-size: 12px;
+    padding: 10px 0;
+    font-weight: bold;
+}
+
+.day {
+    min-width: 0;
+    min-height: 52px;
+    border: none;
+    border-radius: 9px;
+    background: #F2F0ED;
+    color: #222222;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.day:hover,
+.day.selected {
+    background: #FF9C3B;
+    color: #1B2128;
+    font-weight: bold;
+}
+
+.day:disabled {
+    opacity: 1;
+    background: #EAEAEA;
+    color: #777777;
+    cursor: not-allowed;
+}
+
+.day.empty {
+    visibility: hidden;
+}
+
+.legend {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 17px;
+    color: #555555;
+    font-size: 12px;
+}
+
+.legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot.available {
+    background: #FF9C3B;
+}
+
+.dot.unavailable {
+    background: #999999;
+}
+
+#timeSection {
+    display: none;
+    margin-top: 25px;
+    border-top: 1px solid #EEEEEE;
+    padding-top: 15px;
+}
+
+h3 {
+    margin-top: 20px;
+    font-size: 19px;
+    color: #1B2128;
+}
+
+.section-description {
+    color: #666666;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.hours {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.hour {
+    min-height: 52px;
+    background: #F2F0ED;
+    color: #1B2128;
+    border: 1px solid #DDDDDD;
+    border-radius: 9px;
+    padding: 12px 5px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.hour:hover,
+.hour.selected {
+    background: #FF9C3B;
+    border-color: #FF9C3B;
+}
+
+.hour:disabled {
+    background: #E5E5E5;
+    color: #999999;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+.booking {
+    display: none;
+    margin-top: 25px;
+    border-top: 2px solid #EEEEEE;
+    padding-top: 20px;
+}
+
+.booking-date {
+    background: #FFF4D9;
+    border-radius: 8px;
+    padding: 12px;
+    font-weight: bold;
+    color: #79501D;
+    margin: 12px 0 20px;
+}
+
+label {
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 13px;
+    color: #1B2128;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 14px;
+    margin: 8px 0 12px;
+    border: 1px solid #DDDDDD;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    background: #FFFFFF;
+    color: #1B2128;
+}
+
+textarea {
+    min-height: 115px;
+    resize: vertical;
+}
+
+input:focus,
+textarea:focus {
+    outline: 2px solid #FF9C3B;
+    border-color: #FF9C3B;
+}
+
+.submit {
+    width: 100%;
+    min-height: 54px;
+    margin-top: 10px;
+    padding: 15px;
+    background: #FF9C3B;
+    color: #1B2128;
+    border: none;
+    border-radius: 9px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.notice {
+    display: none;
+    padding: 14px;
+    margin-top: 15px;
+    border-radius: 9px;
+    background: #FFF4D9;
+    color: #79501D;
+    font-size: 13px;
+}
+
+footer {
+    text-align: center;
+    color: #AAAAAA;
+    font-size: 11px;
+    padding: 25px;
+}
+
+@media (max-width: 600px) {
+    header {
+        padding: 22px 12px;
+    }
+
+    .logo-image {
+        width: 140px;
+        height: 140px;
+    }
+
+    .container {
+        padding: 10px;
+    }
+
+    .panel {
+        padding: 15px;
+        border-radius: 15px;
+    }
+
+    .month h2 {
+        font-size: 18px;
+    }
+
+    .calendar {
+        gap: 5px;
+    }
+
+    .weekday {
+        font-size: 11px;
+        padding: 8px 0;
+    }
+
+    .day {
+        min-height: 44px;
+        font-size: 14px;
+    }
+
+    .hours {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .hour {
+        min-height: 54px;
+        font-size: 16px;
+    }
+
+    input,
+    textarea {
+        font-size: 16px;
+        padding: 14px;
+    }
+
+    .submit {
+        min-height: 56px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <img
+        src="logo.jpg"
+        class="logo-image"
+        alt="Polish N Mani"
+    >
+    <div class="subtitle">ONLINE BOOKING</div>
+</header>
+
+<main class="container">
+<div class="panel">
+
+    <div class="month">
+        <button type="button" onclick="changeMonth(-1)">‹</button>
+        <h2 id="monthTitle"></h2>
+        <button type="button" onclick="changeMonth(1)">›</button>
+    </div>
+
+    <div class="calendar" id="calendar"></div>
+
+    <div class="legend">
+        <span><i class="dot available"></i> Dostępne dni</span>
+        <span><i class="dot unavailable"></i> Minione dni</span>
+    </div>
+
+    <div id="timeSection">
+        <h3 id="selectedDate"></h3>
+
+        <p class="section-description">
+            Wybierz dogodną godzinę:
+        </p>
+
+        <div class="hours" id="hours"></div>
+    </div>
+
+    <div class="booking" id="booking">
+        <h3>Twoja rezerwacja</h3>
+
+        <div class="booking-date" id="bookingDate"></div>
+
+        <form id="bookingForm">
+
+            <label for="service">
+                Jaką usługę chciałabyś wykonać?
+            </label>
+
+            <textarea
+                id="service"
+                required
+                placeholder="Opisz, jakie paznokcie chciałabyś wykonać..."
+            ></textarea>
+
+            <label for="clientName">
+                Imię i nazwisko
+            </label>
+
+            <input
+                id="clientName"
+                type="text"
+                required
+                placeholder="Twoje imię i nazwisko"
+            >
+
+            <label for="phone">
+                Numer telefonu
+            </label>
+
+            <input
+                id="phone"
+                type="tel"
+                required
+                placeholder="Numer telefonu"
+            >
+
+            <label for="clientEmail">
+                Adres e-mail
+            </label>
+
+            <input
+                id="clientEmail"
+                type="email"
+                required
+                autocomplete="email"
+                placeholder="Twoj adres e-mail"
+            >
+
+            <button class="submit" type="submit">
+                WYŚLIJ ZGŁOSZENIE
+            </button>
+
+        </form>
+
+        <div class="notice" id="notice"></div>
+    </div>
+
+</div>
+</main>
+
+<footer>
+    POLISH N MANI • BEAUTY BOOKING
+</footer>
+
+<!-- Supabase JS client -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+const SUPABASE_URL = "https://zixdxcetovwtcmknnafm.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_FK_I3Inup6XZyjvL5TWDPw_SJVMsQ7K";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY,
+    {
+        auth: {
+            // Publiczny formularz ma zawsze działać jako anon,
+            // niezależnie od logowania do panelu administratora.
+            persistSession: false,
+            autoRefreshToken: false,
+            detectSessionInUrl: false
+        }
+    }
+);
+
+const monthNames = [
+    "Styczeń",
+    "Luty",
+    "Marzec",
+    "Kwiecień",
+    "Maj",
+    "Czerwiec",
+    "Lipiec",
+    "Sierpień",
+    "Wrzesień",
+    "Październik",
+    "Listopad",
+    "Grudzień"
+];
+
+const hoursList = [
+    "09:00",
+    "11:00",
+    "13:00",
+    "15:00",
+    "17:00",
+    "19:00"
+];
+
+let currentMonth = new Date();
+currentMonth.setDate(1);
+
+let selectedDay = null;
+let selectedHour = null;
+
+let bookedSlots = new Set();
+let availabilityLoaded = false;
+
+function formatLocalDate(year, monthIndex, day) {
+    return `${year}-${String(monthIndex + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function slotKey(date, time) {
+    return `${date}|${String(time).slice(0, 5)}`;
+}
+
+async function refreshBookedSlots() {
+    const { data, error } = await supabaseClient.rpc("get_public_booked_slots");
+
+    if (error) {
+        console.error("Availability loading error:", error);
+        availabilityLoaded = false;
+        return false;
+    }
+
+    bookedSlots = new Set(
+        (data || []).map(row => slotKey(row.appointment_date, row.appointment_time))
+    );
+    availabilityLoaded = true;
+    return true;
+}
+
+function getToday() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return today;
+}
+
+function renderCalendar() {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+
+    document.getElementById("monthTitle").textContent =
+        monthNames[month] + " " + year;
+
+    const calendar = document.getElementById("calendar");
+    calendar.innerHTML = "";
+
+    ["Pn", "Wt", "Śr", "Cz", "Pt", "So", "Nd"].forEach(day => {
+        const el = document.createElement("div");
+        el.className = "weekday";
+        el.textContent = day;
+        calendar.appendChild(el);
+    });
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const offset = (firstDay + 6) % 7;
+
+    const daysInMonth =
+        new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < offset; i++) {
+        const empty = document.createElement("div");
+        empty.className = "day empty";
+        calendar.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+        const btn = document.createElement("button");
+
+        btn.type = "button";
+        btn.className = "day";
+        btn.textContent = d;
+
+        const date = new Date(year, month, d);
+        btn.disabled = date < getToday();
+
+        if (selectedDay === d) {
+            btn.classList.add("selected");
+        }
+
+        btn.onclick = () => selectDay(d);
+        calendar.appendChild(btn);
+    }
+}
+
+function changeMonth(direction) {
+    const today = getToday();
+
+    const next = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth() + direction,
+        1
+    );
+
+    const firstOfCurrentMonth = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        1
+    );
+
+    if (next < firstOfCurrentMonth) {
+        return;
+    }
+
+    currentMonth = next;
+    selectedDay = null;
+    selectedHour = null;
+
+    document.getElementById("timeSection").style.display = "none";
+    document.getElementById("booking").style.display = "none";
+
+    renderCalendar();
+}
+
+async function selectDay(day) {
+    selectedDay = day;
+    selectedHour = null;
+
+    renderCalendar();
+
+    const year = currentMonth.getFullYear();
+    const monthIndex = currentMonth.getMonth();
+    const date = new Date(year, monthIndex, day);
+    const dateKey = formatLocalDate(year, monthIndex, day);
+
+    document.getElementById("timeSection").style.display = "block";
+
+    document.getElementById("selectedDate").textContent =
+        date.toLocaleDateString("pl-PL", {
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        });
+
+    document.getElementById("booking").style.display = "none";
+
+    const hours = document.getElementById("hours");
+    hours.innerHTML = '<p class="section-description">Sprawdzanie dostępności...</p>';
+
+    const loaded = await refreshBookedSlots();
+
+    if (!loaded) {
+        hours.innerHTML = '<p class="section-description">Nie udało się sprawdzić dostępności. Odśwież stronę i spróbuj ponownie.</p>';
+        return;
+    }
+
+    hours.innerHTML = "";
+
+    hoursList.forEach(hour => {
+        const btn = document.createElement("button");
+        const isBooked = bookedSlots.has(slotKey(dateKey, hour));
+
+        btn.type = "button";
+        btn.className = "hour";
+        btn.textContent = isBooked ? `${hour} • ZAJĘTA` : hour;
+        btn.disabled = isBooked;
+
+        if (!isBooked) {
+            btn.onclick = () => selectHour(hour, btn);
+        }
+
+        hours.appendChild(btn);
+    });
+}
+
+function selectHour(hour, button) {
+    selectedHour = hour;
+
+    document.querySelectorAll(".hour").forEach(btn => {
+        btn.classList.remove("selected");
+    });
+
+    button.classList.add("selected");
+
+    const date = new Date(
+        currentMonth.getFullYear(),
+        currentMonth.getMonth(),
+        selectedDay
+    );
+
+    document.getElementById("bookingDate").textContent =
+        date.toLocaleDateString("pl-PL") + " • " + hour;
+
+    document.getElementById("booking").style.display = "block";
+
+    document.getElementById("booking").scrollIntoView({
+        behavior: "smooth",
+        block: "nearest"
+    });
+}
+
+document.getElementById("bookingForm").addEventListener(
+    "submit",
+    async function(event) {
+        event.preventDefault();
+
+        const notice = document.getElementById("notice");
+        const submitButton = document.querySelector(".submit");
+
+        if (!selectedDay || !selectedHour) {
+            alert("Wybierz dzień i godzinę.");
+            return;
+        }
+
+        const clientName = document.getElementById("clientName").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const clientEmail = document.getElementById("clientEmail").value.trim();
+        const serviceDescription = document.getElementById("service").value.trim();
+
+        if (!clientName || !phone || !clientEmail || !serviceDescription) {
+            alert("Uzupełnij wszystkie pola formularza.");
+            return;
+        }
+
+        const year = currentMonth.getFullYear();
+        const monthIndex = currentMonth.getMonth();
+        const appointmentDate = formatLocalDate(year, monthIndex, selectedDay);
+
+        const availabilityOk = await refreshBookedSlots();
+        if (!availabilityOk) {
+            notice.style.display = "block";
+            notice.textContent = "Nie możemy teraz sprawdzić dostępności terminu. Spróbuj ponownie za chwilę.";
+            return;
+        }
+
+        if (bookedSlots.has(slotKey(appointmentDate, selectedHour))) {
+            notice.style.display = "block";
+            notice.textContent = "Ten termin został już zajęty. Wybierz inną godzinę.";
+            await selectDay(selectedDay);
+            return;
+        }
+
+        const booking = {
+            appointment_date: appointmentDate,
+            appointment_time: selectedHour,
+            client_name: clientName,
+            phone: phone,
+            client_email: clientEmail,
+            service_description: serviceDescription,
+            status: "pending"
+        };
+
+        submitButton.disabled = true;
+        submitButton.textContent = "WYSYŁANIE...";
+        notice.style.display = "block";
+        notice.textContent = "Wysyłamy Twoje zgłoszenie...";
+
+        try {
+            const { error } = await supabaseClient
+                .from("bookings")
+                .insert([booking]);
+
+            if (error) {
+                console.error("Supabase booking error:", error);
+
+                if (error.code === "23505" || error.status === 409) {
+                    notice.textContent =
+                        "Ten termin jest już zajęty. Wybierz inną godzinę lub dzień.";
+                } else {
+                    notice.textContent =
+                        "Nie udało się wysłać zgłoszenia. Spróbuj ponownie za chwilę.";
+                }
+                return;
+            }
+
+            notice.textContent =
+                "Dziękujemy! Twoje zgłoszenie zostało wysłane i oczekuje na potwierdzenie terminu.";
+            bookedSlots.add(slotKey(appointmentDate, selectedHour));
+            document.getElementById("bookingForm").reset();
+            await selectDay(selectedDay);
+
+        } catch (error) {
+            console.error("Unexpected booking error:", error);
+            notice.textContent =
+                "Wystąpił problem z połączeniem. Sprawdź internet i spróbuj ponownie.";
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "WYŚLIJ ZGŁOSZENIE";
+        }
+    }
+);
+
+renderCalendar();
+refreshBookedSlots();
+</script>
+
+</body>
+</html>
